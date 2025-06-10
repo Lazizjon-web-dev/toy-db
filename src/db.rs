@@ -1,17 +1,20 @@
 use serde::{Deserialize, Serialize};
-use serde_json::from_str;
+use serde_json::{from_str, to_string_pretty};
 use std::collections::HashMap;
 use std::fs;
+use std::io::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Database {
     pub value: HashMap<String, String>,
+    pub path: Option<String>,
 }
 
 impl Database {
     pub fn new() -> Self {
         Database {
             value: HashMap::new(),
+            path: None,
         }
     }
 
@@ -19,6 +22,15 @@ impl Database {
         let raw = fs::read_to_string(file_path).expect("Should have been able to read the file");
         let contents = from_str::<HashMap<String, String>>(&raw);
         self.value = contents.unwrap_or_default();
+        self.path = Some(String::from(file_path));
+        Ok(())
+    }
+
+    fn save(&self) -> Result<(), Error> {
+        match &self.path {
+            Some(path) => fs::write(path, to_string_pretty(&self.value).unwrap())?,
+            None => {}
+        };
         Ok(())
     }
 }
