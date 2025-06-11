@@ -26,6 +26,10 @@ impl Database {
         Ok(())
     }
 
+    pub fn get(&mut self, key: &str) -> Option<String> {
+        self.value.get(key).cloned()
+    }
+
     fn save(&self) -> Result<(), Error> {
         match &self.path {
             Some(path) => fs::write(path, to_string_pretty(&self.value).unwrap())?,
