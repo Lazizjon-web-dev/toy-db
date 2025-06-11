@@ -52,6 +52,15 @@ impl Database {
         None
     }
 
+    pub fn insert(&mut self, map: HashMap<String, Value>) {
+        // Insert the new map into the vector
+        self.value.push(map);
+        // Save the updated database to the file
+        if let Err(e) = self.save() {
+            eprintln!("Error saving database: {}", e);
+        }
+    }
+
     // pub fn get(&mut self, key: &str) -> Option<String> {
     //     self.value.get(key).cloned()
     // }
