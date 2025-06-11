@@ -29,6 +29,8 @@ fn main() {
             Ok(line) => {
                 // Trim whitespace from the input line
                 let line = line.trim().to_string();
+                // Add the input line to the history
+                rustyline.add_history_entry(line.as_str()).unwrap();
                 // Process the input line
                 match line.split_whitespace().nth(0).unwrap_or("") {
                     "exit" => {
