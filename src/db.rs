@@ -37,6 +37,14 @@ impl Database {
         }
     }
 
+    pub fn remove(&mut self, key: &str) -> Result<String, String> {
+        let removed_value = self.value.remove(key);
+        if let Err(e) = self.save() {
+            eprintln!("Error saving database: {}", e);
+        }
+        removed_value.ok_or_else(|| format!("Key '{}' not found", key))
+    }
+
     fn save(&self) -> Result<(), Error> {
         match &self.path {
             Some(path) => fs::write(path, to_string_pretty(&self.value).unwrap())?,

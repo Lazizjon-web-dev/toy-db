@@ -52,6 +52,16 @@ fn main() {
                             println!("Set value for '{}': {}", key, value);
                         }
                     }
+                    "remove" => {
+                        if let Some(key) = line.split_whitespace().nth(1) {
+                            match db.remove(key) {
+                                Ok(value) => {
+                                    println!("Removed key '{}', value was: {}", key, value)
+                                }
+                                Err(err) => eprintln!("Error removing key '{}': {}", key, err),
+                            }
+                        }
+                    }
                     _ => {
                         // Handle other commands here
                         println!("You entered: {}", line);
