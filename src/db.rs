@@ -6,44 +6,51 @@ use std::io::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Database {
-    pub value: HashMap<String, String>,
+    pub value: Vec<HashMap<String, String>>,
     pub path: Option<String>,
 }
 
 impl Database {
     pub fn new() -> Self {
         Database {
-            value: HashMap::new(),
+            value: Vec::new(),
             path: None,
         }
     }
 
     pub fn initialize_from_file(&mut self, file_path: &str) -> Result<(), String> {
         let raw = fs::read_to_string(file_path).expect("Should have been able to read the file");
-        let contents = from_str::<HashMap<String, String>>(&raw);
+        let contents = from_str::<Vec<HashMap<String, String>>>(&raw);
         self.value = contents.unwrap_or_default();
         self.path = Some(String::from(file_path));
         Ok(())
     }
 
-    pub fn get(&mut self, key: &str) -> Option<String> {
-        self.value.get(key).cloned()
+    pub fn query(&self, key: &str, value: &str) -> Option<&HashMap<String, String>> {
+        self.value.iter().find_map(|map| {
+            map.get(key)
+                .and_then(|v| if v == value { Some(map) } else { None })
+        })
     }
 
-    pub fn set(&mut self, key: &str, value: &str) {
-        self.value.insert(key.to_string(), value.to_string());
-        if let Err(e) = self.save() {
-            eprintln!("Error saving database: {}", e);
-        }
-    }
+    // pub fn get(&mut self, key: &str) -> Option<String> {
+    //     self.value.get(key).cloned()
+    // }
 
-    pub fn remove(&mut self, key: &str) -> Result<String, String> {
-        let removed_value = self.value.remove(key);
-        if let Err(e) = self.save() {
-            eprintln!("Error saving database: {}", e);
-        }
-        removed_value.ok_or_else(|| format!("Key '{}' not found", key))
-    }
+    // pub fn set(&mut self, key: &str, value: &str) {
+    //     self.value.insert(key.to_string(), value.to_string());
+    //     if let Err(e) = self.save() {
+    //         eprintln!("Error saving database: {}", e);
+    //     }
+    // }
+
+    // pub fn remove(&mut self, key: &str) -> Result<String, String> {
+    //     let removed_value = self.value.remove(key);
+    //     if let Err(e) = self.save() {
+    //         eprintln!("Error saving database: {}", e);
+    //     }
+    //     removed_value.ok_or_else(|| format!("Key '{}' not found", key))
+    // }
 
     fn save(&self) -> Result<(), Error> {
         match &self.path {
