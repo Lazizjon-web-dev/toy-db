@@ -1,10 +1,21 @@
+use db::Database;
 use rustyline::DefaultEditor;
+use std::env;
 
 mod db;
 
 fn main() {
     // Create a new Rustyline editor instance
     let mut rustyline = DefaultEditor::new().unwrap();
+    let args: Vec<String> = env::args().collect();
+
+    let file_path = &args.get(1).expect("File path argument is required");
+    // Initialize the Database
+    let mut db = Database::new();
+
+    db.initialize_from_file(file_path)
+        .expect("Failed to initialize database from file");
+    println!("Database initialized from file: {}", file_path);
 
     loop {
         let readline = rustyline.readline(">> ");
@@ -16,7 +27,7 @@ fn main() {
             }
             Ok(line) => {
                 // Trim whitespace from the input line
-                line = line.trim().to_string();
+                let line = line.trim().to_string();
                 // Process the input line
                 match line.split_whitespace().nth(0).unwrap_or("") {
                     "exit" => {
