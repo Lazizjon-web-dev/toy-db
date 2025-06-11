@@ -1,5 +1,6 @@
-use db::Database;
+use db::{Database, Value};
 use rustyline::DefaultEditor;
+use serde_json::from_str;
 use std::env;
 
 mod db;
@@ -40,7 +41,10 @@ fn main() {
                     "query" => {
                         let mut parts = line.split_whitespace();
                         if let (Some(key), Some(value)) = (parts.nth(1), parts.next()) {
-                            match db.query(key, value) {
+                            match db.query(
+                                key,
+                                from_str(value).unwrap_or(Value::String(value.to_string())),
+                            ) {
                                 Some(v) => println!("Found value: {:?}", v),
                                 None => println!("No matching value found for key '{}'", key),
                             }

@@ -4,9 +4,19 @@ use std::collections::HashMap;
 use std::fs;
 use std::io::Error;
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(untagged)]
+pub enum Value {
+    String(String),
+    Integer(i32),
+    Float(f64),
+    Boolean(bool),
+    HashMap(HashMap<String, Self>),
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Database {
-    pub value: Vec<HashMap<String, String>>,
+    pub value: Vec<HashMap<String, Value>>,
     pub path: Option<String>,
 }
 
@@ -20,17 +30,26 @@ impl Database {
 
     pub fn initialize_from_file(&mut self, file_path: &str) -> Result<(), String> {
         let raw = fs::read_to_string(file_path).expect("Should have been able to read the file");
-        let contents = from_str::<Vec<HashMap<String, String>>>(&raw);
+        let contents = from_str::<Vec<HashMap<String, Value>>>(&raw);
         self.value = contents.unwrap_or_default();
         self.path = Some(String::from(file_path));
         Ok(())
     }
 
-    pub fn query(&self, key: &str, value: &str) -> Option<&HashMap<String, String>> {
-        self.value.iter().find_map(|map| {
-            map.get(key)
-                .and_then(|v| if v == value { Some(map) } else { None })
-        })
+    pub fn query(&self, key: &str, value: Value) -> Option<&HashMap<String, Value>> {
+        println!("Checking for self.value: {:?}", self.value);
+        // Iterate through each map in the vector
+        for map in self.value.iter() {
+            // Check if the map contains the key and if its value matches the provided value
+            if let Some(v) = map.get(key)
+                && v == &value
+            {
+                // If a match is found, return a reference to the map
+                return Some(map);
+            }
+        }
+        // If no match is found, return None
+        None
     }
 
     // pub fn get(&mut self, key: &str) -> Option<String> {
