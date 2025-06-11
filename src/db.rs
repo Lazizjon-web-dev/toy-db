@@ -30,6 +30,13 @@ impl Database {
         self.value.get(key).cloned()
     }
 
+    pub fn set(&mut self, key: &str, value: &str) {
+        self.value.insert(key.to_string(), value.to_string());
+        if let Err(e) = self.save() {
+            eprintln!("Error saving database: {}", e);
+        }
+    }
+
     fn save(&self) -> Result<(), Error> {
         match &self.path {
             Some(path) => fs::write(path, to_string_pretty(&self.value).unwrap())?,

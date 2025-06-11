@@ -45,6 +45,13 @@ fn main() {
                             }
                         }
                     }
+                    "set" => {
+                        let mut parts = line.split_whitespace();
+                        if let (Some(key), Some(value)) = (parts.nth(1), parts.next()) {
+                            db.set(key, value);
+                            println!("Set value for '{}': {}", key, value);
+                        }
+                    }
                     _ => {
                         // Handle other commands here
                         println!("You entered: {}", line);
