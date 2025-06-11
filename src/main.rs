@@ -15,13 +15,24 @@ fn main() {
                 continue;
             }
             Ok(line) => {
-                match line.trim() {
+                // Trim whitespace from the input line
+                line = line.trim().to_string();
+                // Process the input line
+                match line.split_whitespace().nth(0).unwrap_or("") {
                     "exit" => {
                         println!("Exiting the program.");
                         break;
                     }
                     "help" => {
                         println!("Available commands: \n- exit: Exit the program\n- help: Show this help message");
+                    }
+                    "get" => {
+                        if let Some(key) = line.split_whitespace().nth(1) {
+                            match db.get(key) {
+                                Some(value) => println!("Value for '{}': {}", key, value),
+                                None => println!("No value found for key '{}'", key),
+                            }
+                        }
                     }
                     _ => {
                         // Handle other commands here
