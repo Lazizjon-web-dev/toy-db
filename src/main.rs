@@ -37,31 +37,42 @@ fn main() {
                     "help" => {
                         println!("Available commands: \n- exit: Exit the program\n- help: Show this help message");
                     }
-                    "get" => {
-                        if let Some(key) = line.split_whitespace().nth(1) {
-                            match db.get(key) {
-                                Some(value) => println!("Value for '{}': {}", key, value),
-                                None => println!("No value found for key '{}'", key),
-                            }
-                        }
-                    }
-                    "set" => {
+                    "query" => {
                         let mut parts = line.split_whitespace();
                         if let (Some(key), Some(value)) = (parts.nth(1), parts.next()) {
-                            db.set(key, value);
-                            println!("Set value for '{}': {}", key, value);
-                        }
-                    }
-                    "remove" => {
-                        if let Some(key) = line.split_whitespace().nth(1) {
-                            match db.remove(key) {
-                                Ok(value) => {
-                                    println!("Removed key '{}', value was: {}", key, value)
-                                }
-                                Err(err) => eprintln!("Error removing key '{}': {}", key, err),
+                            match db.query(key, value) {
+                                Some(v) => println!("Found value: {:?}", v),
+                                None => println!("No matching value found for key '{}'", key),
                             }
+                        } else {
+                            eprintln!("Usage: query <key> <value>");
                         }
                     }
+                    // "get" => {
+                    //     if let Some(key) = line.split_whitespace().nth(1) {
+                    //         match db.get(key) {
+                    //             Some(value) => println!("Value for '{}': {}", key, value),
+                    //             None => println!("No value found for key '{}'", key),
+                    //         }
+                    //     }
+                    // }
+                    // "set" => {
+                    //     let mut parts = line.split_whitespace();
+                    //     if let (Some(key), Some(value)) = (parts.nth(1), parts.next()) {
+                    //         db.set(key, value);
+                    //         println!("Set value for '{}': {}", key, value);
+                    //     }
+                    // }
+                    // "remove" => {
+                    //     if let Some(key) = line.split_whitespace().nth(1) {
+                    //         match db.remove(key) {
+                    //             Ok(value) => {
+                    //                 println!("Removed key '{}', value was: {}", key, value)
+                    //             }
+                    //             Err(err) => eprintln!("Error removing key '{}': {}", key, err),
+                    //         }
+                    //     }
+                    // }
                     _ => {
                         // Handle other commands here
                         println!("You entered: {}", line);
