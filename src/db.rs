@@ -61,6 +61,24 @@ impl Database {
         }
     }
 
+    pub fn remove(&mut self, key: &str, value: Value) -> Result<(), String> {
+        // Find the index of the map that contains the key-value pair
+        if let Some(index) = self
+            .value
+            .iter()
+            .position(|map| map.get(key) == Some(&value))
+        {
+            // Remove the map at the found index
+            self.value.remove(index);
+            // Save the updated database to the file
+            if let Err(e) = self.save() {
+                eprintln!("Error saving database: {}", e);
+            }
+            Ok(())
+        } else {
+            Err(format!("Key '{}' with value '{:?}' not found", key, value))
+        }
+    }
     // pub fn get(&mut self, key: &str) -> Option<String> {
     //     self.value.get(key).cloned()
     // }
