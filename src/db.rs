@@ -56,6 +56,32 @@ impl Database {
         &self.value
     }
 
+    pub fn update(
+        &mut self,
+        key: &str,
+        value: Value,
+        update_key: &str,
+        update_value: Value,
+    ) -> Result<(), String> {
+        // Find the index of the map that contains the key-value pair
+        if let Some(index) = self
+            .value
+            .iter()
+            .position(|map| map.get(key) == Some(&value))
+        {
+            // Update the value in the found map
+            if let Some(map) = self.value.get_mut(index) {
+                map.insert(update_key.to_string(), update_value);
+                // Save the updated database to the file
+                if let Err(e) = self.save() {
+                    eprintln!("Error saving database: {}", e);
+                }
+                return Ok(());
+            }
+        }
+        Err(format!("Key '{}' with value '{:?}' not found", key, value))
+    }
+
     pub fn insert(&mut self, map: HashMap<String, Value>) {
         // Insert the new map into the vector
         self.value.push(map);
