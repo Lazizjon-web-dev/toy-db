@@ -52,6 +52,10 @@ impl Database {
         None
     }
 
+    pub fn get_all(&self) -> &Vec<HashMap<String, Value>> {
+        &self.value
+    }
+
     pub fn insert(&mut self, map: HashMap<String, Value>) {
         // Insert the new map into the vector
         self.value.push(map);
